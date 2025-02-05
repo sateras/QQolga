@@ -1,0 +1,5 @@
+apps/core/static/core/media/
+*.mp4
+*.avi
+*.mov
+*.mkv
