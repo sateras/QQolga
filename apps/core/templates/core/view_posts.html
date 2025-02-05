@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Все объявления</h2>
+<div class="container mt-4">
+    <div class="row">
+        {% for post in posts %}
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <img src="{{ post.images.url }}" class="card-img-top" alt="{{ post.title }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ post.title }}</h5>
+                        <p class="card-text">{{ post.text|truncatechars:100 }}</p>
+                        <p><strong>Цена:</strong> {{ post.price }}₸</p>
+                        <p><strong>Категория:</strong> {{ post.get_category_display }}</p>
+                        <p><strong>Телефон:</strong> {{ post.phone }}</p>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>Объявлений пока нет.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

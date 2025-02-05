@@ -1,10 +1,8 @@
 from django.contrib import admin
-from core.models import Card, Transactions, CustomUser, BankAccount
+from apps.core.models import Card, Transactions, CustomUser, Post
+
 # Register your models here.
 
-
-class CustomUserAdmin(admin.ModelAdmin):
-    pass
 
 class BankAccountAdmin(admin.ModelAdmin):
     pass
@@ -36,5 +34,4 @@ class TransactionAdmin(admin.ModelAdmin):
 
 admin.site.register(Card, CardAdmin)
 admin.site.register(Transactions, TransactionAdmin)
-admin.site.register(CustomUser, CustomUserAdmin)
-admin.site.register(BankAccount, BankAccountAdmin)
+admin.site.register(Post, BankAccountAdmin)

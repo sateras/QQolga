@@ -17,7 +17,9 @@ import sys
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(BASE_DIR)
-sys.path.append(os.path.join(BASE_DIR, 'apps'))
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -43,7 +45,9 @@ DJANGO_AND_THIRD_PARTY_APPS = [
 ]
 
 PROJECT_APS = [
-    'core',
+    'apps.core',
+    'apps.auths',
+    'apps.abstracts',
     'crispy_bootstrap5',
     'crispy_forms',
 ]
@@ -132,8 +136,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATIC_ROOT = os.path.join(BASE_DIR, "/static/")
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-AUTH_USER_MODEL = 'core.CustomUser'
+AUTH_USER_MODEL = 'auths.CustomUser'

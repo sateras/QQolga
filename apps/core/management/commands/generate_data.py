@@ -1,7 +1,7 @@
 from datetime import datetime
 import random
 import names
-from core.models import CustomUser
+from auths.models import CustomUser
 from django.contrib.auth.hashers import make_password
 
 from django.core.management.base import BaseCommand

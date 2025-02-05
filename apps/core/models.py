@@ -1,121 +1,48 @@
-from operator import mod
 from django.db import models
-from django.contrib.auth.models import (
-    AbstractBaseUser,
-    PermissionsMixin,
-)
-from django.utils import timezone
-from django.contrib.auth.base_user import BaseUserManager
-from django.core.exceptions import ValidationError
 from datetime import datetime, timedelta
-from django.db.models import Q, QuerySet
-
-# Create your models here.
+from apps.auths.models import CustomUser
 
 
-class CustomUserManager(BaseUserManager):
-    def create_user(self, email: str, password: str) -> 'CustomUser':
-        if not email:
-            raise ValidationError('Email required')
+class Post(models.Model):
 
-        user: 'CustomUser' = self.model(
-            email=self.normalize_email(email),
-            password=password,
-        )
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
+    class Category(models.TextChoices):
+        WHEAT = 'WT', 'Пшеница'
+        BARLEY = 'BR', 'Ячмень'
+        OATS = 'OT', 'Овёс'
+        CORN = 'CR', 'Кукуруза'
+        RYE = 'RY', 'Рожь'
+        RICE = 'RC', 'Рис'
+        MILLET = 'ML', 'Просо'
+        TRITICALE = 'TT', 'Тритикале'
 
-    def create_superuser(self, email: str, password: str) -> 'CustomUser':
-        user: 'CustomUser' = self.model(
-            email=self.normalize_email(email),
-            password=password
-        )
-        user.is_staff = True
-        user.is_superuser = True
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def get_special_user(self) -> QuerySet['CustomUser']:
-        """Get special users after 2022.07.01"""
-        DATE = datetime.date(2022, 7, 1)
-        users: QuerySet[CustomUser] = self.filter(
-            Q(is_staff=True) & Q(date_joined__gte=DATE)
-        )
-        return users
-
-    def get_undeleted_users(self) -> QuerySet['CustomUser']:
-        """Get undeleted users"""
-        users: QuerySet[CustomUser] = self.filter(is_active=True)
-        return users
-
-    def delete_model(self):
-        self.is_active = False
-        self.save()
-        return 'Deleted'
-        
-
-
-class CustomUser(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(
-        'Почта/Логин',
-        unique=True
+    owner: CustomUser = models.ForeignKey(
+        CustomUser, related_name='posts', on_delete=models.PROTECT,
     )
-    number = models.CharField(
-        'Номер телефона',
-        max_length=11,
+    title: str = models.CharField(
+        verbose_name="Заголовок", max_length=100
     )
-    is_active: models.BooleanField(
-        'Активность',
-        default=True
+    text: str = models.TextField(
+        verbose_name="Текст"
     )
-    is_staff = models.BooleanField(
-        'Статус менеджера',
-        default=False
+    phone: str = models.CharField(
+        verbose_name="Номер телефона", max_length=15
     )
-
-    data_joined = models.DateTimeField(
-        'Время создания',
-        default=timezone.now
+    category: str = models.CharField(
+        max_length=2, choices=Category.choices, default=Category.WHEAT
     )
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
-    objects = CustomUserManager()
-
-    class Meta:
-        ordering = (
-            'data_joined',
-        )
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
-
-
-class BankAccount(models.Model):
-    owner = models.ForeignKey(
-        CustomUser, related_name='Владелец', on_delete=models.PROTECT,
+    date_created: str = models.DateTimeField(
+        verbose_name='Дата создания', auto_now_add=True
     )
-    number = models.CharField(
-        verbose_name="Номер счета",
-        max_length=20,
-        unique=True,
-        null=False,
+    images: str = models.ImageField(
+        verbose_name="Изображение", upload_to="post_images/"
     )
-    date = models.DateTimeField(
-        verbose_name='Дата открытия',
-        auto_now_add=True,
-    )
-    balance = models.FloatField(
-        verbose_name='Остаток',
-        default=0,
+    price: str = models.DecimalField(
+        verbose_name="Цена", max_digits=10, decimal_places=2
     )
 
     def __str__(self) -> str:
-        return f'{self.number}'
+        return f'{self.title} - {self.get_category_display()}'
 
-    class Meta:
-        verbose_name = "Счет"
-        verbose_name_plural = "Счета"
 
 
 class Transactions(models.Model):
@@ -127,11 +54,11 @@ class Transactions(models.Model):
         LATE = 'Ожидание превышено'
         REJECTED = 'Отклонено'
 
-    sender = models.ForeignKey(
-        BankAccount, related_name="send_transactions", on_delete=models.PROTECT
+    sender: Post = models.ForeignKey(
+        Post, related_name="send_transactions", on_delete=models.PROTECT
     )
-    receiver = models.ForeignKey(
-        BankAccount, related_name="receiv_transactions", on_delete=models.PROTECT
+    receiver: Post = models.ForeignKey(
+        Post, related_name="receiv_transactions", on_delete=models.PROTECT
     )
     date = models.DateTimeField(
         verbose_name='Дата транзакции',
@@ -159,7 +86,7 @@ class Transactions(models.Model):
 
 class Card(models.Model):
     account = models.ForeignKey(
-        BankAccount, related_name='cards', on_delete=models.PROTECT,
+        Post, related_name='cards', on_delete=models.PROTECT,
     )
     number = models.CharField(
         verbose_name="Номер карты",

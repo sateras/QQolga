@@ -1,11 +1,102 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Home Page{% endblock %}
-{% block content %}
-    <h1>Hello!</h1>
-    <div class="text">Ваши счета</div>
-    <ol class="list-group list-group-numbered">
-        {% for account in accounts %}
-            <li class="list-group-item">{{ account }}</li>
-        {% endfor %}
-    </ol>
+
+{% block cont %}
+  <div class="wrapper">
+    <div class="content">
+
+      <section class="showcase">
+        <header class="head-video">
+          <div class="h">
+            <h2 class="container logo">Qoldan Qolga</h2>
+          </div>
+          <div class="toggle"></div>
+        </header>
+        <video src="{% static 'core/media/4280455-uhd_3840_2160_30fps.mp4' %}" muted loop autoplay></video>
+        <div class="overlay"></div>
+        <div class="container text">
+          <div id="size1">Трейдинговая платформа</div>
+          <div id="size2">Покупка, продажа, аренда</div>
+          <p>
+            Удобный поиск предложений:  <br><br>
+            Быстро находите выгодные сделки на покупку и продажу сельхозпродукции. <br><br>
+            Становись лучше вместе с нами!
+          </p>
+          <a href="register.html" target="_blank">Регистрация</a>
+        </div>
+<!--        <ul class="social">-->
+<!--          <li><a href="#"><img src="https://i.ibb.co/x7P24fL/facebook.png"></a></li>-->
+<!--          <li><a href="#"><img src="https://i.ibb.co/Wnxq2Nq/twitter.png"></a></li>-->
+<!--          <li><a href="#"><img src="https://i.ibb.co/ySwtH4B/instagram.png"></a></li>-->
+<!--        </ul>-->
+      </section>
+      <div class="menu">
+        <ul>
+          <li><a href="autoris.html" target="_blank">Войти</a></li>
+          <li><a href="register.html" target="_blank">Регистрация</a></li>
+          <li><a href="kursi.html" target="_blank">Обучение</a></li>
+          <li><a href="administrirovanie.html" target="_blank">Администрация</a></li>
+          <li><a href="cabinet.html" target="_blank">Личный кабинет</a></li>
+          <li><a href="shop.html" target="_blank">Магазин</a></li>
+        </ul>
+      </div>
+
+
+      <div class="second-page">
+
+        <header class="hero-section">
+          <img data-speed=".6" class="hero" src="" alt="">
+          <div class="container">
+            <div data-speed=".75" class="main-header">
+              <h1 class="main-title">Наши предложения</h1>
+            </div>
+          </div>
+        </header>
+
+        <div class="portfolio">
+          <div class="container">
+            <main class="gallery">
+              <div data-speed=".9" class="gallery__left">
+
+                <img class=" gallery__item" src="{% static 'core/media/pexels-jk04-2933243.jpg' %}" alt="">
+                <img class=" gallery__item" src="{% static 'core/media/pexels-tomfisk-1595108.jpg' %}" alt="">
+
+                <div class="text-block gallery__item">
+                  <h2 class="text-block__h">Электронные контракты:</h2>
+                  <p class="text-block__p">Заключайте сделки онлайн с юридической защитой</p>
+                </div>
+
+                <img class=" gallery__item" src="../media/foto3.jpg" alt="">
+
+              </div>
+              <div data-speed="1.6" class="gallery__right">
+
+                <div class="text-block gallery__item">
+                  <h2 class="text-block__h">Безопасные расчёты:</h2>
+                  <p class="text-block__p">Обеспечение прозрачности и защиты платежей между участниками.</p>
+                </div>
+
+                <img class=" gallery__item" src="{% static 'core/media/pexels-pixabay-289334.jpg' %}" alt="">
+                <img class=" gallery__item" src="{% static 'core/media/pexels-pierre-sudre-9695-55766.jpg' %}" alt="">
+                <img class=" gallery__item" src="{% static 'core/media/pexels-karol-wisniewski-279026-878297.jpg' %}" alt="">
+
+                <div class="text-block gallery__item">
+                  <h2 class="text-block__h">Личный кабинет: </h2>
+                  <p class="text-block__p">Управляйте сделками, документами и отчетностью в одном месте</p>
+                </div>
+
+
+
+              </div>
+            </main>
+          </div>
+        </div>
+
+      </div>
+
+
+
+    </div>
+  </div>
 {% endblock %}

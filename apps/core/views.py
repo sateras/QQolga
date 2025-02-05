@@ -1,9 +1,8 @@
 from django.shortcuts import render, redirect
-from typing import Any
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.shortcuts import (
-    get_object_or_404, redirect, render
+    redirect, render
 )
 from django.contrib.auth import (
     authenticate as dj_authenticate,
@@ -13,20 +12,46 @@ from django.contrib.auth import (
 from django.contrib.auth.decorators import login_required
 from django.views.generic import FormView
 from django.core.handlers.wsgi import WSGIRequest
-from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse, HttpResponse, Http404
 from django.core import serializers
+from typing import Any
+from apps.core.models import Post
+from apps.auths.forms import RegisterForm, LoginForm
+from apps.core.mixin import HttpResponseMixin
+from apps.auths.models import CustomUser
 import random
 import json
-from core.models import CustomUser, BankAccount
-from core.forms import RegisterForm, LoginForm
-# Create your views here.
-from core.mixin import HttpResponseMixin
+from rest_framework import viewsets, permissions
+from .models import Post
+from apps.core.forms import PostForm
+from .serializers import PostSerializer
+from django.views.generic.edit import CreateView
+from django.views.generic import ListView
+
+
+class ViewPostListView(ListView):
+    model = Post
+    template_name = "core/view_posts.html"
+    context_object_name = "posts"
+    ordering = ['-date_created']
+
+
+class CreatePostView(CreateView):
+    model = Post
+    form_class = PostForm
+    template_name = "core/create_post.html"
+    success_url = reverse_lazy("core:home")
+
+    def form_valid(self, form):
+        """Autintificate user (owner)"""
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
+
 
 
 def generation_account():
     """Account is 20 chars"""
-    ALL_ACCOUNTS = BankAccount.objects.all()
+    ALL_ACCOUNTS = Post.objects.all()
     new_account = ""
     for _ in range(20):
         new_account += str(random.randint(0, 9))
@@ -40,12 +65,13 @@ def generation_account():
 class RegisterView(FormView):
     template_name = 'registration/sign_up.html'
     form_class = RegisterForm
-    success_url = reverse_lazy("home")
+    success_url = reverse_lazy("core:home")
 
     def form_valid(self, form):
         email = form.cleaned_data.get('email')
+        phone = form.cleaned_data.get('phone')
         password = form.cleaned_data.get('password')
-        user = CustomUser.objects.create_user(email, password)
+        user = CustomUser.objects.create_user(email, phone, password)
         dj_login(self.request, user)
         return super().form_valid(form)
 
@@ -53,7 +79,7 @@ class RegisterView(FormView):
 class LoginView(FormView):
     template_name = 'registration/login.html'
     form_class = LoginForm
-    success_url = reverse_lazy("home")
+    success_url = reverse_lazy("core:home")
 
     def form_valid(self, form):
         email = form.cleaned_data.get('email')
@@ -70,7 +96,8 @@ class LoginView(FormView):
 class LogoutView(View):
     def get(self,  request, *args: Any, **kwargs: Any):
         dj_logout(request)
-        return redirect(reverse("login"))
+        return redirect(reverse("core:home"))
+
 
 
 class ProfileView(HttpResponseMixin, View):
@@ -78,46 +105,49 @@ class ProfileView(HttpResponseMixin, View):
     template_name: str = 'core/profile.html'
 
     def get(self, request: WSGIRequest, *args, **kwargs):
-        user = request.user
-        if not user.is_authenticated:
-            return redirect(
-                reverse("login")
-            )
-
+        if not request.user.is_authenticated:
+            return redirect(reverse("login"))  # Перенаправление на страницу входа
         return self.get_http_response(
             request,
             template_name=self.template_name,
             context={
-                'user': user,
-                'accounts': BankAccount.objects.filter(owner=user)
+                'user': request.user,
+                'posts': Post.objects.filter(owner=request.user)
             }
         )
 
 
-class ProfileCardView(View):
-    pass
+# class PostViewSet(viewsets.ModelViewSet):
+#     queryset = Post.objects.all().order_by('-date_created')
+#     serializer_class = PostSerializer
+#     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+#
+#     def perform_create(self, serializer):
+#         serializer.save(owner=self.request.user)
 
 
-@login_required(login_url=reverse_lazy("login"))
-def create_account(request):
-    user = request.user
-    BankAccount.objects.create(
-        owner=user,
-        number=generation_account(),
-    )
-    return redirect(reverse("home"))
+
+# @login_required(login_url=reverse_lazy("login"))
+# def create_account(request):
+#     user = request.user
+#     Post.objects.create(
+#         owner=user,
+#         number=generation_account(),
+#     )
+#     return redirect(reverse("core:home"))
 
 
-@login_required(login_url=reverse_lazy("login"))
+# @login_required(login_url=reverse_lazy("login"))
 def home(request):
-    if request.user:
+    if request.user.is_authenticated:
         user = request.user
         return render(request, "home.html",
                       {
-                          'accounts': BankAccount.objects.filter(owner=user)
+                          'posts': Post.objects.filter(owner=user)
                       }
                       )
-    return render(request, "home.html")
+    return render(request, "home.html", {'posts': []})
+
 
 
 class GetUsersView(View):
@@ -130,9 +160,10 @@ class GetUsersView(View):
     def post(self, request):
         user_data = json.loads(request.body)
         email = user_data.get('email')
+        phone = user_data.get('phone')
         password = user_data.get('password')
         try:
-            user = CustomUser.objects.create_user(email, password)
+            user = CustomUser.objects.create_user(email, phone, password)
         except Exception as e:
             return JsonResponse(
                 data={

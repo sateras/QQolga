@@ -4,7 +4,7 @@
 {% block content %}
 <form method="post">
     {% csrf_token %}{{form|crispy}}
-    <p>Аккаунт не создан? Так создайте <a href="{% url 'sign_up' %}">Сюда</a>!</p>
+    <p>Аккаунт не создан? Так создайте <a href="{% url 'core:sign_up' %}">Сюда</a>!</p>
     <button type="submit" class="btn btn-success">Войти</button>
 </form>
 {% endblock %}

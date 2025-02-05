@@ -8,18 +8,12 @@
             <li>Email: {{ user.email }}</li>
         </ul>
     </div>
-    <form action="{% url 'profile_card' %}" method="post">
-        <input type="submit" value="Create card">
-    </form>
-    <form action="{% url 'create_account' %}" method="post">
-        <input type="submit" value="Create accaunt">
-    </form>
-    <a href="{% url 'logout' %}">Выйти</a>
-    {% for account in accounts %}
-    <ol class="list-group list-group-numbered">
-            <li class="list-group-item">{{ account }}</li>
-            <li class="list-group-item">{{ account.date }}</li>
-            <li class="list-group-item">{{ account.balance }}</li>
-    </ol><br>
+    <a href="{% url 'core:logout' %}">Выйти</a>
+    {% for post in posts %}
+    <ul class="list-group list-group-numbered">
+            <li class="list-group-item">{{ post.title }}</li>
+            <li class="list-group-item">{{ post.price }}</li>
+            <li class="list-group-item">{{ post.category }}</li>
+    </ul><br>
     {% endfor %}
 {% endblock %}
