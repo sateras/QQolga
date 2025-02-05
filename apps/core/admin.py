@@ -1,37 +1,30 @@
 from django.contrib import admin
-from apps.core.models import Card, Transactions, CustomUser, Post
-
-# Register your models here.
+from apps.core.models import Post
 
 
-class BankAccountAdmin(admin.ModelAdmin):
-    pass
-
-class CardAdmin(admin.ModelAdmin):
+class PostAdmin(admin.ModelAdmin):
     list_display = (
-        'account',
-        'number'
+        'title',
+        'owner',
+        'category',
+        'price',
+        'date_created'
     )
     list_filter = (
-        'account',
-        'number',
-        'expiration_date',
+        'category',
+        'date_created'
+    )
+    search_fields = (
+        'title',
+        'text',
+        'phone'
+    )
+    ordering = (
+        '-date_created',
+    )
+    readonly_fields = (
+        'date_created',
     )
 
 
-class TransactionAdmin(admin.ModelAdmin):
-    list_display = (
-        'sender',
-        'receiver',
-        'date',
-    )
-    list_filter = (
-        'sender',
-        'receiver',
-        'status',
-    )
-
-
-admin.site.register(Card, CardAdmin)
-admin.site.register(Transactions, TransactionAdmin)
-admin.site.register(Post, BankAccountAdmin)
+admin.site.register(Post, PostAdmin)

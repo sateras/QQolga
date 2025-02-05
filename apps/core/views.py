@@ -1,4 +1,3 @@
-from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.shortcuts import (
@@ -9,7 +8,6 @@ from django.contrib.auth import (
     login as dj_login,
     logout as dj_logout,
 )
-from django.contrib.auth.decorators import login_required
 from django.views.generic import FormView
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import JsonResponse, HttpResponse, Http404
@@ -21,10 +19,8 @@ from apps.core.mixin import HttpResponseMixin
 from apps.auths.models import CustomUser
 import random
 import json
-from rest_framework import viewsets, permissions
 from .models import Post
 from apps.core.forms import PostForm
-from .serializers import PostSerializer
 from django.views.generic.edit import CreateView
 from django.views.generic import ListView
 
@@ -116,25 +112,6 @@ class ProfileView(HttpResponseMixin, View):
             }
         )
 
-
-# class PostViewSet(viewsets.ModelViewSet):
-#     queryset = Post.objects.all().order_by('-date_created')
-#     serializer_class = PostSerializer
-#     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-#
-#     def perform_create(self, serializer):
-#         serializer.save(owner=self.request.user)
-
-
-
-# @login_required(login_url=reverse_lazy("login"))
-# def create_account(request):
-#     user = request.user
-#     Post.objects.create(
-#         owner=user,
-#         number=generation_account(),
-#     )
-#     return redirect(reverse("core:home"))
 
 
 # @login_required(login_url=reverse_lazy("login"))
