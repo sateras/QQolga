@@ -12,13 +12,13 @@ from django.db.models import Q, QuerySet
 # Create your models here.
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, email: str, phone: str, password: str) -> 'CustomUser':
+    def create_user(self, email: str, number: str, password: str) -> 'CustomUser':
         if not email:
             raise ValidationError('Email required')
 
         user: 'CustomUser' = self.model(
             email=self.normalize_email(email),
-            phone=phone,
+            number=number,
             password=password,
         )
         user.set_password(password)

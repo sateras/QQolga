@@ -65,9 +65,9 @@ class RegisterView(FormView):
 
     def form_valid(self, form):
         email = form.cleaned_data.get('email')
-        phone = form.cleaned_data.get('phone')
+        number = form.cleaned_data.get('phone')
         password = form.cleaned_data.get('password')
-        user = CustomUser.objects.create_user(email, phone, password)
+        user = CustomUser.objects.create_user(email, number, password)
         dj_login(self.request, user)
         return super().form_valid(form)
 
