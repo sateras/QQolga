@@ -43,3 +43,9 @@ class LoginForm(forms.Form):
         widget=forms.PasswordInput(),
         label='Введите пароль'
     )
+
+
+class ProfilePictureUpdateForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['profile_picture']

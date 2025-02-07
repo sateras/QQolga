@@ -1,20 +1,21 @@
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.shortcuts import (
-    redirect, render
+    redirect, render, get_object_or_404
 )
 from django.contrib.auth import (
     authenticate as dj_authenticate,
     login as dj_login,
     logout as dj_logout,
 )
+from django.contrib.auth.decorators import login_required
 from django.views.generic import FormView
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import JsonResponse, HttpResponse, Http404
 from django.core import serializers
 from typing import Any
 from apps.core.models import Post
-from apps.auths.forms import RegisterForm, LoginForm
+from apps.auths.forms import RegisterForm, LoginForm, ProfilePictureUpdateForm
 from apps.core.mixin import HttpResponseMixin
 from apps.auths.models import CustomUser
 import random
@@ -43,7 +44,11 @@ class CreatePostView(CreateView):
         form.instance.owner = self.request.user
         return super().form_valid(form)
 
-
+@login_required
+def delete_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id, owner=request.user)
+    post.delete()
+    return redirect('core:profile')
 
 def generation_account():
     """Account is 20 chars"""
@@ -102,13 +107,36 @@ class ProfileView(HttpResponseMixin, View):
 
     def get(self, request: WSGIRequest, *args, **kwargs):
         if not request.user.is_authenticated:
-            return redirect(reverse("login"))  # Перенаправление на страницу входа
+            return redirect(reverse("login"))
+        
+        form = ProfilePictureUpdateForm(instance=request.user)
+
         return self.get_http_response(
             request,
             template_name=self.template_name,
             context={
                 'user': request.user,
-                'posts': Post.objects.filter(owner=request.user)
+                'posts': Post.objects.filter(owner=request.user),
+                'form': form,
+            }
+        )
+
+    def post(self, request: WSGIRequest, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect(reverse("login"))
+
+        form = ProfilePictureUpdateForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse("core:profile"))
+
+        return self.get_http_response(
+            request,
+            template_name=self.template_name,
+            context={
+                'user': request.user,
+                'posts': Post.objects.filter(owner=request.user),
+                'form': form,
             }
         )
 

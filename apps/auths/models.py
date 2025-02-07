@@ -68,7 +68,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         'Номер телефона',
         max_length=11,
     )
-    is_active: models.BooleanField(
+    is_active = models.BooleanField(
         'Активность',
         default=True,
     )
@@ -80,6 +80,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     data_joined = models.DateTimeField(
         'Время создания',
         default=timezone.now,
+    )
+    profile_picture: str = models.ImageField(
+        verbose_name="Фото профиля", 
+        upload_to="post_images/",
+        blank=True,
+        null=True
     )
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
