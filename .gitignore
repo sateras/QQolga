@@ -3,3 +3,5 @@ apps/core/static/core/media/
 *.avi
 *.mov
 *.mkv
+venv/
+**/__pycache__/
